@@ -40,7 +40,6 @@ logging.getLogger("root").setLevel("DEBUG")
 
 logger.info("---code start---")
 
-counter_ = create_counter()
 
 # 用于 schedule.every(10).seconds.do(job1)  # 每隔10s执行下一次任务，函数内部每隔60s执行一次
 def weihuabiaoju():
@@ -160,19 +159,17 @@ def weihuabiaoju_one_page(browser):
 def job1():
     # starttime = "09:30:00"
     # endtime = "17:30:00"
-    # time_now = time.strftime("%H:%M:%S", time.localtime())  # 刷新
-    # if time_now < starttime:
-    #     time_min = time.strftime("%H:%M", time.localtime())
-    #     if (time_min == "1:00") or (time_min == "2:00") or (time_min == "3:00") or (time_min == "4:00") or (time_min == "5:00") or (time_min == "6:00") or (time_min == "7:00") or (time_min == "8:00") or (time_min == "9:00") or (time_min == "9:29"):
-    #         print("化运圈定时任务睡眠:" + time_min)
-    # elif time_now > endtime:
-    #     time_min = time.strftime("%H:%M", time.localtime())
-    #     if (time_min == "18:00") or (time_min == "19:00") or (time_min == "20:00") or (time_min == "21:00") or (time_min == "22:00") or (time_min == "23:00") or (time_min == "23:59") or (time_min == "17:29"):
-    #         print("化运圈定时任务睡眠:"+ time_min)
-    # else:
-    #     weihuabiaoju()
-    print_str("test.....")
-
+    starttime = "07:30:00"
+    endtime = "18:30:00"
+    time_now = time.strftime("%H:%M:%S", time.localtime())  # 刷新
+    if time_now < starttime:
+        if time_now.split(':')[1] == "00":
+            print("化运圈定时任务睡眠:" + time_now)
+    elif time_now > endtime:
+        if time_now.split(':')[1] == "00":
+            print("化运圈定时任务睡眠:"+ time_now)
+    else:
+        weihuabiaoju()
 
 import schedule
 def main():

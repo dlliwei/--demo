@@ -95,7 +95,7 @@ def get_browser():
 def demo():
     global browser
     option = webdriver.ChromeOptions()
-    browser = webdriver.Chrome("../chromedriver.exe")
+    browser = webdriver.Chrome("chromedriver.exe")
     browser.get("E:/projPy/molbase/huayunquan/demo.html")
     for next_link2 in browser.find_elements_by_xpath('//div[@class="list-container"]/div[@class="list"]/ul'):
         #print(next_link2.text.replace("\n", " "))
@@ -116,6 +116,12 @@ def demo():
     browser.quit()
 
 if __name__ == '__main__':
-    counter_demo()
+    #counter_demo()
+    time_now = "12:00:01"
+    ss= time_now.split(':')[1]
+    if time_now.split(':')[1] == "00":
+        print("化运圈定时任务睡眠:" + time_now)
+    else:
+        print_str("")
 
 
