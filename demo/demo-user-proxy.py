@@ -63,6 +63,26 @@ def main():
     urllib.request.urlretrieve(url, filename=localfile)
 
 
+def create_counter():
+	def increase():
+		n = 0
+		while True:
+			n = n+1
+			yield n
+	it = increase()
+	def counter():
+		return next(it)
+	return counter
+
+
+counter_ = create_counter()
 
 if __name__ == '__main__':
-    main()
+    #main()
+    print("等待"+str(counter_())+"分钟！")
+    c= counter_()
+    print(c)
+
+    print(counter_())
+    print(counter_())
+    print(counter_())
