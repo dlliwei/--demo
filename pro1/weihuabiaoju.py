@@ -27,27 +27,7 @@ import sys
 import requests
 from tools.tools1 import *
 
-# reload(sys)
-# sys.setdefaultencoding("utf-8")
-"""
-mac 上启动测试
 
-/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --flag-switches-begin --flag-switches-end --enable-audio-service-sandbox --user-data-dir=/Users/zhanghang/Downloads/chrome https://www.baidu.com/
-
-如果百度没有桌面的话，就是错的，就要重新来一次了
-
-sudo cp -R /Users/zhanghang/Library/Application\ Support/Google/Chrome/Default /Users/zhanghang/Downloads/chrome
-
-
-
-https://dc.oilchem.net/price_search/list.htm?businessType=2&varietiesName=%E6%BA%B4%E7%B4%A0&varietiesId=3711&templateType=1&flagAndTemplate=1-1&channelId=2685&isShow=0&oneName=%E5%8C%96%E8%82%A5&twoName=%E6%BA%B4%E7%B4%A0
-
-"""
-
-
-# $x('//*[@id="navfist_3"]//*[@class="nav_class_third"]//a').map((x)=>{return x.href}).join("\n")
-
-#easylogger.init(None)
 logger = logging.getLogger("oilchemPrice")
 
 # LOGGER.setLevel(logging.CRITICAL)
@@ -59,43 +39,50 @@ logging.getLogger("urllib3").setLevel("INFO")
 logging.getLogger("root").setLevel("DEBUG")
 
 logger.info("---code start---")
-MYSQL_HOST = "122.226.111.10"
-MYSQL_USER = "db_rw"
-MYSQL_PASSWORD = "molbase1010"
-MYSQL_PORT = 3306
-MYSQL_DB = "baike_bak"
-
-server = None
-browser = None
-
-min_time = 6
-max_time = 9
-total = 0
-
-
-# min_time = 1
-# max_time = 3
-
-Account = "13918156153"
-Password = "molbase2021"
-
-def connect_mysql():
-    global server
-    server = MysqlService(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_PORT)
-    server.select_db(MYSQL_DB)
-
-
-def j(extract_list):
-    return "".join(extract_list.extract()).replace(":", "").strip()
-
 
 counter_ = create_counter()
 
+# 用于 schedule.every(10).seconds.do(job1)  # 每隔10s执行下一次任务，函数内部每隔60s执行一次
 def weihuabiaoju():
+    browser = get_browser()
+    print_str("<危化镖局爬取开始！>")
+    c = 30
+    # _counter = create_counter()  # 重置
+    while True:
+        durn = weihuabiaoju_one_page(browser)
+        if durn <=5:
+            #c=counter_() # 每调用一次counter_()，递增一次
+            print_str("没获取到数据？ 等待"+str(c)+"分钟再请求！")
+            break;
+        else:
+            print_str("<当前页数据爬取结束！>")
+            time.sleep(60)
+    browser.quit()
+    time.sleep(c*60)
+    print_str("<危化镖局睡眠结束！>")
+
+# 用于 每一小时 爬取一次
+# schedule.every().day.at('9:30').do(job)
+def weihuabiaoju2():
+    browser = get_browser()
+    print_str("<危化镖局爬取开始！>")
+
+    while True:
+        durn = weihuabiaoju_one_page(browser)
+        if durn <=5:
+            print_str("没获取到数据？等待下一次任务！")
+            break;
+        else:
+            print_str("<当前页数据爬取结束！>")
+            time.sleep(60)
+    browser.quit()
+    print_str("<危化镖局爬取结束！>")
+
+def weihuabiaoju_one_page(browser):
+    # 反爬很严重，每次首页只能访问5次左右，然后要间隔半小时后才可以继续访问
     link="https://www.weihuabiaoju.com/ptnpc/index.html#/goods"
     desc="危化镖局"
     starttime = datetime.now()  # 获得当前时间
-    print_str("<当前页数据爬取开始！>")
     try:
         browser.get(link)
         for next_link in browser.find_elements_by_xpath('//div[@class="list-container"]/div[@class="list"]/ul'):
@@ -147,33 +134,28 @@ def weihuabiaoju():
                  'reptileUrl': reptileUrl,
                  'reptileSource': desc
                 }
-                code = post(param)
+                code = post('http://beta.napi.huayunquan.com/basic/whbj/simplePublishForPython',param)
                 if code != 0:
                     print_str("保存失败：" +goodsId)
                 else:
                     print_str("保存成功：" +goodsId)
                 print(name + " " + weight + " " + start + " " + end + "\n" + "======================================")
                 with open(today_date()+".txt", 'a+') as f:
-                    f.write(log_time() + str(code) + " " + next_link.text.replace("\n", " ") + "\n")
+                    check = hashlib.md5(str(name + weight + start + end).encode("utf-8")).hexdigest()
+                    f.write(log_time() + str(code) + " " + check + " " + next_link.text.replace("\n", " ") + "\n")
 
             except NoSuchElementException as err:
                 print(err)
 
     except Exception as err:
-        #msg = traceback.print_exc()
         print(err)
         print_str("抓取异常了，本次终止, 等待1s")
         time.sleep(1)
 
     endtime = datetime.now()  # 获得当前时间
     durn = (endtime - starttime).seconds  # 两个时间差，并以秒显示出来
-    if durn <=5:
-        c=counter_()
-        print_str("没获取到数据？ 等待"+str(c)+"分钟！")
-        browser.quit()
-        time.sleep(c*60)
-    else:
-        print_str("<当前页数据爬取结束！>")
+    return durn
+
 
 def job1():
     starttime = "09:30:00"
@@ -191,81 +173,21 @@ def job1():
         weihuabiaoju()
 
 
-
-
-
 import schedule
-
 def main():
     global browser
-    option = webdriver.ChromeOptions()
     print(os.name)
-    schedule.every(1).seconds.do(job1)  # 每隔10s执行一次任务
-
-    # 设置IP代理
-    # thisapi = 'http://ip.ipjldl.com/index.php/api/entry?method=proxyServer.hdtiqu_api_url&packid=1&fa=0&groupid=0&fetch_key=&time=1&qty=19&port=1&format=txt&ss=1&css=&dt=&pro=&city=&usertype=4'
-    # ippools = urllib.request.urlopen(thisapi).read().decode("utf-8", "ignore")
-    # ipchoose = random.choice(ippools.split("\r\n"))
-    # print("======== IP代理：" + ipchoose)
-    # option.add_argument("--proxy-server="+ipchoose)
-
-    # 设置用户代理
-    uapools = [
-        "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 QIHU 360EE",
-    ]
-    thisua = random.choice(uapools)
-    option.add_argument("User-Agent="+thisua)
-
-    path = r"huayunquanx"
-    option.add_argument('user-data-dir=%s' % path)
-    option.add_argument('log-level=3')
-    option.add_argument('disable-gpu')
-    browser = webdriver.Chrome("../chromedriver.exe", options=option)
-
+    schedule.every(60).seconds.do(job1)  # 每隔60s执行一次任务
 
     while True:
         schedule.run_pending()
         time.sleep(1)
 
     logger.info("end")
-    browser.quit()
-
-
-
-
-def demo():
-    global browser
-    option = webdriver.ChromeOptions()
-    browser = webdriver.Chrome("../chromedriver.exe")
-    browser.get("E:/projPy/molbase/huayunquan/demo.html")
-    for next_link2 in browser.find_elements_by_xpath('//div[@class="list-container"]/div[@class="list"]/ul'):
-        #print(next_link2.text.replace("\n", " "))
-        try:
-            # 发货地
-            #bannner = next_link2.find_element_by_xpath('.//li[@class="banner"]').text
-
-            start_province = next_link2.find_element_by_xpath(
-                './/li[@class="start"]/div[@class="province"]').text
-            start_city = next_link2.find_element_by_xpath('.//li[@class="start"]/div[@class="city"]').text
-            start = start_province + "," + start_city
-            # 目的地
-            end_province = next_link2.find_element_by_xpath('.//li[@class="end"]/div[@class="province"]').text
-            end_city = next_link2.find_element_by_xpath('.//li[@class="end"]/div[@class="city"]').text
-            end = end_province + "," + end_city
-
-            print(start + " " + end )
-            print("=========")
-        except NoSuchElementException as err:
-            print(err)
-
-    browser.quit()
 
 
 if __name__ == '__main__':
-    #main()
-    demo()
+    main()
 
 
 
