@@ -5,6 +5,9 @@ import json
 from selenium import webdriver
 import random
 
+from selenium.common.exceptions import NoSuchElementException
+
+
 def get_time_interval():
     a = datetime.now()  # 获得当前时间
     time.sleep(22)  # 睡眠两秒
@@ -89,7 +92,28 @@ def get_browser():
     browser = webdriver.Chrome("chromedriver.exe", options=option)
     return browser
 
+def demo():
+    global browser
+    option = webdriver.ChromeOptions()
+    browser = webdriver.Chrome("../chromedriver.exe")
+    browser.get("E:/projPy/molbase/huayunquan/demo.html")
+    for next_link2 in browser.find_elements_by_xpath('//div[@class="list-container"]/div[@class="list"]/ul'):
+        #print(next_link2.text.replace("\n", " "))
+        try:
 
+            start_province = next_link2.find_element_by_xpath(
+                './/li[@class="start"]/div[@class="province"]').text
+            start_city = next_link2.find_element_by_xpath('.//li[@class="start"]/div[@class="city"]').text
+            start = start_province + "," + start_city
+            # 目的地
+            end_province = next_link2.find_element_by_xpath('.//li[@class="end"]/div[@class="province"]').text
+            end_city = next_link2.find_element_by_xpath('.//li[@class="end"]/div[@class="city"]').text
+            end = end_province + "," + end_city
+
+            print(start + " " + end + "\n" +"=================")
+        except NoSuchElementException as err:
+            print(err)
+    browser.quit()
 
 if __name__ == '__main__':
     counter_demo()
