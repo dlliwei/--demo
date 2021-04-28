@@ -8,7 +8,7 @@ from selenium.webdriver.remote.remote_connection import LOGGER
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import ElementNotInteractableException
 import urllib
-from datetime import datetime
+import datetime
 import re
 from scrapy import Selector
 import random
@@ -82,7 +82,7 @@ def weihuabiaoju_one_page(browser):
     # 反爬很严重，每次首页只能访问5次左右，然后要间隔半小时后才可以继续访问
     link="https://www.weihuabiaoju.com/ptnpc/index.html#/goods"
     desc="危化镖局"
-    starttime = datetime.now()  # 获得当前时间
+    starttime = datetime.datetime.now()  # 获得当前时间
     try:
         browser.get(link)
         for next_link in browser.find_elements_by_xpath('//div[@class="list-container"]/div[@class="list"]/ul'):
@@ -152,25 +152,26 @@ def weihuabiaoju_one_page(browser):
         print_str("抓取异常了，本次终止, 等待1s")
         time.sleep(1)
 
-    endtime = datetime.now()  # 获得当前时间
+    endtime = datetime.datetime.now()  # 获得当前时间
     durn = (endtime - starttime).seconds  # 两个时间差，并以秒显示出来
     return durn
 
 
 def job1():
-    starttime = "09:30:00"
-    endtime = "17:30:00"
-    time_now = time.strftime("%H:%M:%S", time.localtime())  # 刷新
-    if time_now < starttime:
-        time_min = time.strftime("%H:%M", time.localtime())
-        if (time_min == "1:00") or (time_min == "2:00") or (time_min == "3:00") or (time_min == "4:00") or (time_min == "5:00") or (time_min == "6:00") or (time_min == "7:00") or (time_min == "8:00") or (time_min == "9:00") or (time_min == "9:29"):
-            print("化运圈定时任务睡眠:" + time_min)
-    elif time_now > endtime:
-        time_min = time.strftime("%H:%M", time.localtime())
-        if (time_min == "18:00") or (time_min == "19:00") or (time_min == "20:00") or (time_min == "21:00") or (time_min == "22:00") or (time_min == "23:00") or (time_min == "23:59") or (time_min == "17:29"):
-            print("化运圈定时任务睡眠:"+ time_min)
-    else:
-        weihuabiaoju()
+    # starttime = "09:30:00"
+    # endtime = "17:30:00"
+    # time_now = time.strftime("%H:%M:%S", time.localtime())  # 刷新
+    # if time_now < starttime:
+    #     time_min = time.strftime("%H:%M", time.localtime())
+    #     if (time_min == "1:00") or (time_min == "2:00") or (time_min == "3:00") or (time_min == "4:00") or (time_min == "5:00") or (time_min == "6:00") or (time_min == "7:00") or (time_min == "8:00") or (time_min == "9:00") or (time_min == "9:29"):
+    #         print("化运圈定时任务睡眠:" + time_min)
+    # elif time_now > endtime:
+    #     time_min = time.strftime("%H:%M", time.localtime())
+    #     if (time_min == "18:00") or (time_min == "19:00") or (time_min == "20:00") or (time_min == "21:00") or (time_min == "22:00") or (time_min == "23:00") or (time_min == "23:59") or (time_min == "17:29"):
+    #         print("化运圈定时任务睡眠:"+ time_min)
+    # else:
+    #     weihuabiaoju()
+    print_str("test.....")
 
 
 import schedule
