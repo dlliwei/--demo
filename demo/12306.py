@@ -6,6 +6,7 @@ import requests
 import gzip
 
 '''
+2021.5.8 add for liwei
 https://www.12306.cn/
 目标任务：自动抢票
 先正常订一遍票， 并把各种数据包整理出来，一次摸清请求这些网址并模拟相关数据，并对关键环节进行自动控制。
