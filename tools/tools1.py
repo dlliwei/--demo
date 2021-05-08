@@ -5,9 +5,6 @@ import json
 from selenium import webdriver
 import random
 
-from selenium.common.exceptions import NoSuchElementException
-
-
 def get_time_interval():
     a = datetime.now()  # 获得当前时间
     time.sleep(22)  # 睡眠两秒
@@ -23,6 +20,18 @@ def log_time():
     return "[" +today_time()+ "] "
 def print_str(str):
     print(log_time() + str)
+
+def create_counter_page():
+    def increase():
+        n = 0
+        while True:
+            n = n + 1
+            yield n
+
+    it = increase()
+    def counter():
+        return next(it)
+    return counter
 
 def create_counter():
     def increase():
@@ -86,42 +95,25 @@ def get_browser():
     option.add_argument("User-Agent="+thisua)
 
     path = r"huayunquanx"
-    option.add_argument('user-data-dir=%s' % path)
+    #option.add_argument('user-data-dir=%s' % path)
     option.add_argument('log-level=3')
     option.add_argument('disable-gpu')
-    browser = webdriver.Chrome("chromedriver.exe", options=option)
+    browser = webdriver.Chrome("../chromedriver.exe", options=option)
     return browser
 
-def demo():
-    global browser
-    option = webdriver.ChromeOptions()
-    browser = webdriver.Chrome("chromedriver.exe")
-    browser.get("E:/projPy/molbase/huayunquan/demo.html")
-    for next_link2 in browser.find_elements_by_xpath('//div[@class="list-container"]/div[@class="list"]/ul'):
-        #print(next_link2.text.replace("\n", " "))
-        try:
+def replace(str):
+    str.replace("-| ", ",")
 
-            start_province = next_link2.find_element_by_xpath(
-                './/li[@class="start"]/div[@class="province"]').text
-            start_city = next_link2.find_element_by_xpath('.//li[@class="start"]/div[@class="city"]').text
-            start = start_province + "," + start_city
-            # 目的地
-            end_province = next_link2.find_element_by_xpath('.//li[@class="end"]/div[@class="province"]').text
-            end_city = next_link2.find_element_by_xpath('.//li[@class="end"]/div[@class="city"]').text
-            end = end_province + "," + end_city
 
-            print(start + " " + end + "\n" +"=================")
-        except NoSuchElementException as err:
-            print(err)
-    browser.quit()
-
+import re
 if __name__ == '__main__':
     #counter_demo()
-    time_now = "12:00:01"
-    ss= time_now.split(':')[1]
-    if time_now.split(':')[1] == "00":
-        print("化运圈定时任务睡眠:" + time_now)
-    else:
-        print_str("")
+    content = '30吨'
+    result = re.search('(\d+)', content).group()
+    weight = "10吨".replace("吨", "")
+    print(result)
+
+
+    i=0
 
 
